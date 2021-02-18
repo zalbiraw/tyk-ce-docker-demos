@@ -1,0 +1,62 @@
+version: '3.3'
+services:
+  tyk-gateway:
+    image: tykio/tyk-gateway:latest
+    container_name: tyk-gateway
+
+    environment:
+      - TYK_GW_LISTENPORT=${GATEWAY_PORT}
+      - TYK_GW_STORAGE_HOST=${REDIS_HOST}
+      - TYK_GW_STORAGE_PORT=${REDIS_PORT}
+      - TYK_GW_STORAGE_ENABLECLUSTER=false
+      - TYK_GW_STORAGE_USESSL=${REDIS_USE_SSL}
+
+    ports:
+    - "${GATEWAY_MACHINE_PORT}:${GATEWAY_PORT}"
+
+    volumes:
+    - ./confs/tyk.conf:/opt/tyk-gateway/tyk.conf
+
+    networks:
+    - tyk
+
+  tyk-pump:
+    image: tykio/tyk-pump-docker-pub:latest
+    container_name: tyk-pump
+
+    environment:
+      - TYK_PMP_ANALYTICSSTORAGECONFIG_HOST=${REDIS_HOST}
+      - TYK_PMP_ANALYTICSSTORAGECONFIG_PORT=${REDIS_PORT}
+      - TYK_PMP_ANALYTICSSTORAGECONFIG_ENABLECLUSTER=false
+      - TYK_PMP_ANALYTICSSTORAGECONFIG_REDISUSESSL=${REDIS_USE_SSL}
+
+    volumes:
+    - ./confs/pump.conf:/opt/tyk-pump/pump.conf
+
+    networks:
+    - tyk
+
+  tyk-redis:
+    image: redis
+    container_name: redis
+
+    ports:
+    - "${REDIS_MACHINE_PORT}:${REDIS_PORT}"
+
+    networks:
+    - tyk
+
+  tyk-mongo:
+    image: mongo:3.2
+    container_name: mongo
+
+    command: ["mongod", "--smallfiles"]
+
+    ports:
+    - "27017:27017"
+
+    networks:
+    - tyk
+
+networks:
+  tyk:
