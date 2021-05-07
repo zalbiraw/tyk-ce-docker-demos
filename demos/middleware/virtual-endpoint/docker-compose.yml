@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+  tyk-gateway:
+    volumes:
+    - ./demos/middleware/virtual-endpoint/src/api.json:/opt/tyk-gateway/apps/api.json
+    - ./demos/middleware/virtual-endpoint/src/testVirtual.js:/opt/tyk-gateway/middleware/testVirtual.js
+
